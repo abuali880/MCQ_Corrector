@@ -3,6 +3,7 @@ import argparse
 import imutils
 import cv2
 import os
+import math
 #import cv2.cv as cv
 
 name = "output"
@@ -10,13 +11,12 @@ directory = "/home/mostafa/TrainData"
 thresh = 150
 maxValue = 255
 kernel = np.ones((10,10),np.uint8)
-flag = True
 
-def rotate(image, angle):
+def rotate(image, angle,cX,cY):
     # grab the dimensions of the image and then determine the
     # center
     (h, w) = image.shape[:2]
-    (cX, cY) = (w // 2, h // 2)
+    #(cX, cY) = (w // 2, h // 2)
     # grab the rotation matrix (applying the negative of the
     # angle to rotate clockwise), then grab the sine and cosine
     # (i.e., the rotation components of the matrix)
@@ -33,6 +33,7 @@ def rotate(image, angle):
     return cv2.warpAffine(image, M, (nW, nH))
 for filename in os.listdir(directory):
     if filename.endswith(".png"): 
+        flag = True
         image = cv2.imread(os.path.join(directory, filename),0)
         img = image
         img = img[1400:1800, 0:1500]
@@ -45,23 +46,40 @@ for filename in os.listdir(directory):
         circles = cv2.HoughCircles(img,cv2.HOUGH_GRADIENT,1,20,param1=50,param2=30,minRadius=0,maxRadius=0)
         circles = np.uint16(np.around(circles))
         for i in circles[0,:]:
-        	cv2.circle(cimg,(i[0],i[1]),i[2],(0,255,0),3)
-        	cv2.circle(cimg,(i[0],i[1]),2,(0,0,255),3)
-        	if flag:
+            if flag:
         		# first center coordinates
-        		x1=i[0]
-        		y1=i[1]
-        		flag = False
-        	else:
-        		#second center coordinates
-        		x2=i[0]
-        		y2=i[1]
-        		pass
+                x1=i[0]
+                y1=i[1]
+                flag = False
+            else:
+                #second center coordinates
+                x2=i[0]
+                y2=i[1]
+                pass
         	pass
-        cimg = rotate(cimg, angle=45)
+        if x1 > x2:
+            tmp1 = x2
+            tmp2 = y2
+            x2 = x1
+            y2 = y1
+            x1 = tmp1
+            y1 = tmp2
+            pass
+        print(x1,y1)    
+        delta_x = float(x2-x1)
+        delta_y = float(y2)-float(y1)
+        rads = math.atan2(delta_y, delta_x)
+        angle = math.degrees(rads) 
+        print(angle)
+        image = imutils.rotate_bound(image, angle=-angle)
+        image = imutils.translate(image,226-x1 , 140-y1)
+        image = image[700:1450, 100:1200]
+        image1 = image[0:1500, 0:350]
+        image2= image[0:1500, 350:700]
+        image3 = image[0:1500, 700:1050]
         cv2.namedWindow(os.path.join(directory, filename),cv2.WINDOW_NORMAL)
-        cv2.resizeWindow(os.path.join(directory, filename), 800,800)
-        cv2.imshow(os.path.join(directory, filename),cimg)
+        cv2.resizeWindow(os.path.join(directory, filename), 700,700)
+        cv2.imshow(os.path.join(directory, filename),image)
         cv2.waitKey(0)
         cv2.destroyAllWindows()
         continue
