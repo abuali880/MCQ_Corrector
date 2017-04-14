@@ -58,13 +58,13 @@ for filename in os.listdir(directory):
         		y2=i[1]
         		pass
         	pass
-	cimg = rotate(cimg, angle=45)
-	cv2.namedWindow(os.path.join(directory, filename),cv2.WINDOW_NORMAL)
-	cv2.resizeWindow(os.path.join(directory, filename), 800,800)
-	cv2.imshow(os.path.join(directory, filename),cimg)
-	cv2.waitKey(0)
-	cv2.destroyAllWindows()
-	continue
+        cimg = rotate(cimg, angle=45)
+        cv2.namedWindow(os.path.join(directory, filename),cv2.WINDOW_NORMAL)
+        cv2.resizeWindow(os.path.join(directory, filename), 800,800)
+        cv2.imshow(os.path.join(directory, filename),cimg)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
+        continue
     else:
         continue
         pass
